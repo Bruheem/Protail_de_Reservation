@@ -2,8 +2,23 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
+
+func (app *application) readIDParam(r *http.Request) (uint64, error) {
+	params := httprouter.ParamsFromContext(r.Context())
+
+	id, err := strconv.ParseUint(params.ByName("id"), 10, 64)
+	if err != nil {
+		return 0, errors.New("invalid id requested")
+	}
+
+	return id, nil
+}
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
 	js, err := json.Marshal(data)
