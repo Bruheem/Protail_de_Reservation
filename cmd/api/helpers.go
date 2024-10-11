@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -37,5 +38,37 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 	w.WriteHeader(status)
 	w.Write(js)
 
+	return nil
+}
+
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+
+	err := json.NewDecoder(r.Body).Decode(dst)
+	if err != nil {
+		var syntaxError *json.SyntaxError
+		var unmarshallTypeError *json.UnmarshalTypeError
+		var invalidUnmarshallError *json.InvalidUnmarshalError
+
+		switch {
+
+		case errors.As(err, &syntaxError):
+			return errors.New("invalid json format")
+
+		case errors.Is(err, io.ErrUnexpectedEOF):
+			return errors.New("body contains badly-formed JSON")
+
+		case errors.As(err, &unmarshallTypeError):
+			return errors.New("body contains incorrect JSON type")
+
+		case errors.Is(err, io.EOF):
+			return errors.New("body must not be empty")
+
+		case errors.As(err, &invalidUnmarshallError):
+			panic(err)
+
+		default:
+			return err
+		}
+	}
 	return nil
 }

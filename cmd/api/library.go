@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -28,4 +29,20 @@ func (app *application) showLibraryHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) createLibraryHandler(w http.ResponseWriter, r *http.Request) {
+
+	var input struct {
+		Name      string `json:"name"`
+		CreatedBy string `json:"createdby"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	fmt.Fprintf(w, "name: %s, createdby: %s", input.Name, input.CreatedBy)
 }
