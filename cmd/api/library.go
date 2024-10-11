@@ -10,7 +10,7 @@ import (
 func (app *application) showLibraryHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
-		http.NotFound(w, r)
+		app.notFoundResponse(w, r)
 		return
 	}
 
@@ -26,7 +26,6 @@ func (app *application) showLibraryHandler(w http.ResponseWriter, r *http.Reques
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"document": document}, nil)
 	if err != nil {
-		app.logger.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
