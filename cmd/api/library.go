@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	validator "github.com/Bruheem/Portail_de_Reservation/internal"
 	"github.com/Bruheem/Portail_de_Reservation/internal/data"
 )
 
@@ -41,6 +42,17 @@ func (app *application) createLibraryHandler(w http.ResponseWriter, r *http.Requ
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	library := &data.Library{
+		Name:      input.Name,
+		CreatedBy: input.CreatedBy,
+	}
+
+	v := validator.New()
+	if data.ValidateLibrary(v, library); !v.IsValid() {
+		app.failedValidatorResponse(w, r, v.Errors)
 		return
 	}
 
