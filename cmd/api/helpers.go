@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -43,7 +45,12 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 
-	err := json.NewDecoder(r.Body).Decode(dst)
+	r.Body = http.MaxBytesReader(w, r.Body, int64(1_048_576))
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	err := dec.Decode(dst)
 	if err != nil {
 		var syntaxError *json.SyntaxError
 		var unmarshallTypeError *json.UnmarshalTypeError
@@ -66,9 +73,23 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 		case errors.As(err, &invalidUnmarshallError):
 			panic(err)
 
+		case strings.HasPrefix(err.Error(), "json: unknown field "):
+			field := strings.TrimPrefix(err.Error(), "json: unknown field")
+			return fmt.Errorf("body contains unknown key %s", field)
+
+		case err.Error() == "http: request body too large":
+			return errors.New("body too large")
+
 		default:
 			return err
 		}
+
 	}
+
+	err = dec.Decode(&struct{}{})
+	if err != nil {
+		return errors.New("body must contain only one JSON value")
+	}
+
 	return nil
 }
