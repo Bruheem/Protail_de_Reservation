@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
 	validator "github.com/Bruheem/Portail_de_Reservation/internal"
 	"github.com/Bruheem/Portail_de_Reservation/internal/data"
@@ -16,17 +14,13 @@ func (app *application) showLibraryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	document := data.Document{
-		ID:             id,
-		Title:          "something",
-		Author:         "ibrahim Ben.",
-		YearPublished:  time.Now(),
-		ISBN:           909090,
-		LibraryID:      3,
-		DocumentTypeID: 1,
+	lib, err := app.library.GetLibrary(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"document": document}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"library": lib}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -56,5 +50,11 @@ func (app *application) createLibraryHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	fmt.Fprintf(w, "name: %s, createdby: %s", input.Name, input.CreatedBy)
+	id, err := app.library.InsertLibrary(library.Name, library.CreatedBy)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.logger.Printf("new library added with success! (id = %d)", id)
 }
