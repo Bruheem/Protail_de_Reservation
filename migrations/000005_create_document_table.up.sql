@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS document (
+    DocumentID SERIAL PRIMARY KEY,
+    title  VARCHAR(255) NOT NULL,
+    author  VARCHAR(255) NOT NULL,
+    yearPublished YEAR NOT NULL,
+    ISBN  VARCHAR(255) NOT NULL,
+    libraryID   INTEGER NOT NULL,
+    documentTypeID INTEGER NOT NULL,
+
+    FOREIGN KEY (libraryID) REFERENCES library(libraryID)  ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (documentTypeID) REFERENCES documentType(documentTypeID)  ON DELETE CASCADE ON UPDATE CASCADE,
+);

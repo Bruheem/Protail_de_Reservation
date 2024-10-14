@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS subscription (
+    subscriptionID SERIAL PRIMARY KEY,
+    userID INT NOT NULL,
+    libraryID INT NOT NULL,
+    subscriptionDate DATE NOT NULL,
+
+    FOREIGN KEY (userID) REFERENCES user(userID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (libraryID) REFERENCES library(libraryID) ON DELETE CASCADE ON UPDATE CASCADE,
+);

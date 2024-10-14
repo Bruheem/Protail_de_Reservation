@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS documentType(
+    documentTypeID  INT PRIMARY KEY AUTO_INCREMENT,
+    documentTypeName VARCHAR(255) NOT NULL,
+);

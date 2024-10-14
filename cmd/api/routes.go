@@ -7,8 +7,9 @@ import (
 )
 
 func (app *application) routes() *httprouter.Router {
-	router := httprouter.New()
 
+	// router configuration
+	router := httprouter.New()
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
