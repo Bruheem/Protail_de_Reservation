@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS request (
     requestStatus SET('accepted', 'rejected', 'ongoing'),
     requestDate DATE NOT NULL,
 
-    FOREIGN KEY (libraryID) REFERENCES library(libraryID)  ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (userID) REFERENCES user(userID)  ON DELETE CASCADE ON UPDATE CASCADE,
-);
+    FOREIGN KEY (libraryID) REFERENCES library(LibraryID)  ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (userID) REFERENCES user(id)  ON DELETE CASCADE ON UPDATE CASCADE
+)
