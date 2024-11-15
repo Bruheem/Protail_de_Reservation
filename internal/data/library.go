@@ -1,6 +1,9 @@
 package data
 
-import validator "github.com/Bruheem/Portail_de_Reservation/internal"
+import (
+	validator "github.com/Bruheem/Portail_de_Reservation/internal"
+	"github.com/Bruheem/Portail_de_Reservation/internal/models"
+)
 
 type Library struct {
 	ID        uint64
@@ -8,7 +11,7 @@ type Library struct {
 	CreatedBy string
 }
 
-func ValidateLibrary(v *validator.Validator, library *Library) {
+func ValidateLibrary(v *validator.Validator, library *models.Library) {
 	v.Check(library.Name != "", "name", "must not be empty")
 	v.Check(library.CreatedBy != "", "createdby", "there must be an author")
 }

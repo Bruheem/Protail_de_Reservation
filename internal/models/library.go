@@ -1,6 +1,9 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+	"errors"
+)
 
 type Library struct {
 	ID        uint64
@@ -41,4 +44,36 @@ func (m *LibraryModel) InsertLibrary(title, createdby string) (uint64, error) {
 	}
 
 	return uint64(id), err
+}
+
+func (m *LibraryModel) UpdateLibrary(lib *Library) {
+	query := "UPDATE library SET Name = ?, CreatedBy = ? WHERE LibraryID = ?"
+
+	args := []interface{}{
+		lib.Name,
+		lib.CreatedBy,
+		lib.ID,
+	}
+
+	m.DB.QueryRow(query, args...)
+}
+
+func (m *LibraryModel) DeleteLibrary(id uint64) error {
+	query := "DELETE FROM library WHERE LibraryID = ?"
+
+	result, err := m.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("error: no records found")
+	}
+
+	return nil
 }

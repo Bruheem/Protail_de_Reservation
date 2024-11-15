@@ -14,13 +14,15 @@ func (app *application) routes() *httprouter.Router {
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+
 	router.HandlerFunc(http.MethodGet, "/v1/library/:id", app.showLibraryHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/library", app.createLibraryHandler)
+	router.HandlerFunc(http.MethodPut, "/v1/library/:id", app.updateLibraryHandler)
+	router.HandlerFunc(http.MethodDelete, "/v1/library/:id", app.deleteLibraryHandler)
 
-	// router.HandlerFunc(http.MethodGet, "/v1/home", app.homePageHandler)
-	// router.HandlerFunc(http.MethodGet, "/v1/library", app.libraryPageHandler)
-	// router.HandlerFunc(http.MethodGet, "/v1/collections", app.collectionsPageHandler)
-	// router.HandlerFunc(http.MethodGet, "/v1/profile", app.profilePageHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/user/signup", app.userSignup)
+	router.HandlerFunc(http.MethodPost, "/v1/user/logout", app.userLogout)
+	router.HandlerFunc(http.MethodPost, "/v1/user/login", app.userLogin)
 
 	return router
 }
