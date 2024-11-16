@@ -1,8 +1,8 @@
 package data
 
 import (
-	validator "github.com/Bruheem/Portail_de_Reservation/internal"
 	"github.com/Bruheem/Portail_de_Reservation/internal/models"
+	"github.com/Bruheem/Portail_de_Reservation/internal/validator"
 )
 
 type Library struct {

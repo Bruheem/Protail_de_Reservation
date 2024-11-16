@@ -21,9 +21,11 @@ type config struct {
 }
 
 type application struct {
-	config  config
-	logger  *log.Logger
-	library *models.LibraryModel
+	config   config
+	logger   *log.Logger
+	library  *models.LibraryModel
+	user     *models.UserModel
+	document *models.DocumentModel
 }
 
 func main() {
@@ -45,9 +47,11 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		config:  cfg,
-		logger:  logger,
-		library: &models.LibraryModel{DB: db},
+		config:   cfg,
+		logger:   logger,
+		library:  &models.LibraryModel{DB: db},
+		user:     &models.UserModel{DB: db},
+		document: &models.DocumentModel{DB: db},
 	}
 
 	srv := &http.Server{
