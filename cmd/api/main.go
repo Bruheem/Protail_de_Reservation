@@ -18,14 +18,21 @@ const version = "1.0.0"
 type config struct {
 	port int
 	env  string
+	jwt  struct {
+		secret    string
+		issuer    string
+		port      int
+		tokenLife time.Duration
+	}
 }
 
 type application struct {
-	config   config
-	logger   *log.Logger
+	config config
+	logger *log.Logger
+
 	library  *models.LibraryModel
-	user     *models.UserModel
 	document *models.DocumentModel
+	user     *models.UserModel
 }
 
 func main() {

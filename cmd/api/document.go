@@ -12,7 +12,7 @@ func (app *application) createDocumentHandler(w http.ResponseWriter, r *http.Req
 	var input struct {
 		Title          string `json:"title"`
 		Author         string `json:"author"`
-		YearPublished  int    `json:"yearpublished`
+		YearPublished  int    `json:"yearPublished`
 		ISBN           string `json:"isbn"`
 		LibraryID      int    `json:"libraryid"`
 		DocumentTypeID int    `json:"documenttypeid"`

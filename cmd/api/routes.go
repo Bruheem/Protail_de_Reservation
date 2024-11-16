@@ -26,8 +26,7 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodDelete, "/v1/document/:id", app.deleteDocumentHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/user/signup", app.userSignup)
-	router.HandlerFunc(http.MethodPost, "/v1/user/logout", app.userLogout)
-	router.HandlerFunc(http.MethodPost, "/v1/user/login", app.userLogin)
+	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.authenticationTokenHandler)
 
 	return router
 }
