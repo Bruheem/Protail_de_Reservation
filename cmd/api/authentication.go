@@ -58,11 +58,3 @@ func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
-
-func (app *application) userLogout(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
-
-}

@@ -68,10 +68,12 @@ func (app *application) authenticationTokenHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token:": token}, nil)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token:": token, "user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+
+	app.logger.Printf("a user has successfully authenticated (id = %s)", user.ID)
 }
 
 func (app *application) generateToken(userID int64) (Token, error) {
