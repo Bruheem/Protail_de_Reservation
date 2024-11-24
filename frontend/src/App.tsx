@@ -1,11 +1,24 @@
-import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Login from "./Pages/Login";
+import UserPage from "./Pages/UserPage";
+import LibAdminPage from "./Pages/LibAdminPage";
+import AdminPage from "./Pages/AdminPage";
 
-function App() {
+const App: React.FC = () => {
   return (
-    <>
-      <p>Hello there</p>
-    </>
+    <Router>
+      <div className="d-flex">
+        <div className="flex-grow-1">
+          <Routes>
+            <Route path="/" element={<Login></Login>} />
+            <Route path="/user" element={<UserPage></UserPage>} />
+            <Route path="/libadmin" element={<LibAdminPage></LibAdminPage>} />
+            <Route path="/admin" element={<AdminPage></AdminPage>} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
