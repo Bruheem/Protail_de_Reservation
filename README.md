@@ -2,8 +2,9 @@
 
 ## TODO:
 
-[x] finish the database setup.  
-[ ] finish authentification service.  
-[x] complete all CRUD for documents.  
-[x] complete all CRUD for libraries.  
-[ ] complet all CRUD for users.
+[ ] Handle sessions and tokens in React
+[ ] Create the main components
+[ ] Sidebar
+[ ] (user) Home Page
+[ ] (user) Collections Page
+[ ] (Global) Profile
