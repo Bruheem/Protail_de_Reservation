@@ -2,6 +2,11 @@
 
 ## TODO:
 
+### backend
+[ ] add tuple-fillings to migrations
+[ ] add the Suggestions feature
+
+### frontend
 [ ] Handle sessions and tokens in React
 [ ] Create the main components
 [ ] Sidebar

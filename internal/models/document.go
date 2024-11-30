@@ -81,3 +81,21 @@ func (m *DocumentModel) DeleteDocument(id uint64) error {
 
 	return nil
 }
+
+func (m *DocumentModel) GetSuggestedContent(userID uint64) ([]Document, error) {
+
+	query := `
+		SELECT d.DocumentID, d.title, d.author
+		FROM lending l
+		JOIN user u ON l.user_id = u.id
+		JOIN document d ON l.document_id = d.DocumentID
+		WHERE l.user_id = ?
+	`
+
+	result, err := m.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
