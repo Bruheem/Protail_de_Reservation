@@ -16,8 +16,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         {role === "admin"
           ? "Admin Sidebar"
           : role === "libadmin"
-          ? "Library Admin Sidebar"
-          : "User Sidebar"}
+            ? "Library Admin Sidebar"
+            : "User Sidebar"}
       </h2>
       <ul className="nav flex-column mt-3">
         {role === "admin" && (
@@ -41,9 +41,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             <li className="nav-item">
               <NavLink
                 className="nav-link text-white mb-2 rounded hover-shadow"
-                to="/admin/settings"
+                to="/admin/libraries"
               >
-                <i className="fas fa-cogs mr-2"></i> Settings
+                <i className="fas fa-cogs mr-2"></i> Manage Libraries
               </NavLink>
             </li>
           </>
@@ -61,17 +61,17 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             <li className="nav-item">
               <NavLink
                 className="nav-link text-white mb-2 rounded hover-shadow"
-                to="/libadmin/books"
+                to="/libadmin/documents"
               >
-                <i className="fas fa-book mr-2"></i> Manage Books
+                <i className="fas fa-book mr-2"></i> Manage Documents
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink
                 className="nav-link text-white mb-2 rounded hover-shadow"
-                to="/libadmin/settings"
+                to="/libadmin/profile"
               >
-                <i className="fas fa-cogs mr-2"></i> Settings
+                <i className="fas fa-cogs mr-2"></i> Profile
               </NavLink>
             </li>
           </>
@@ -81,25 +81,25 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             <li className="nav-item">
               <NavLink
                 className="nav-link text-white mb-2 rounded hover-shadow"
+                to="/user/home"
+              >
+                <i className="fas fa-user mr-2"></i> Home
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                className="nav-link text-white mb-2 rounded hover-shadow"
+                to="/user/collections"
+              >
+                <i className="fas fa-book mr-2"></i> Collections
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                className="nav-link text-white mb-2 rounded hover-shadow"
                 to="/user/profile"
               >
-                <i className="fas fa-user mr-2"></i> Profile
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                className="nav-link text-white mb-2 rounded hover-shadow"
-                to="/user/books"
-              >
-                <i className="fas fa-book mr-2"></i> My Books
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                className="nav-link text-white mb-2 rounded hover-shadow"
-                to="/user/settings"
-              >
-                <i className="fas fa-cogs mr-2"></i> Settings
+                <i className="fas fa-cogs mr-2"></i> Profile
               </NavLink>
             </li>
           </>
