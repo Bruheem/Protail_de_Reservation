@@ -151,3 +151,68 @@ func (app *application) getSuggestions(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) borrowDocument(w http.ResponseWriter, r *http.Request) {
+
+	var input struct {
+		userID     int
+		documentID int
+		dueDays    int
+	}
+	app.readJSON(w, r, &input)
+
+	err := app.lending.BorrowDocument(input.userID, input.documentID, input.dueDays)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "Document borrowed"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.logger.Printf("User %d borrowed document %d", input.userID, input.documentID)
+}
+
+func (app *application) returnDocument(w http.ResponseWriter, r *http.Request) {
+
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.lending.ReturnDocument(int(id))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "Document returned"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.logger.Printf("User returned document %d", id)
+}
+
+func (app *application) getBorrowedDocumentStatus(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	status, err := app.lending.GetLendingStatus(int(id))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"status": status}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
