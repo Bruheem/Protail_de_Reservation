@@ -24,11 +24,11 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPut, "/v1/document/:id", app.libAdminMiddleware(http.HandlerFunc(app.updateDocumentHandler)))
 	router.Handler(http.MethodDelete, "/v1/document/:id", app.libAdminMiddleware(http.HandlerFunc(app.deleteDocumentHandler)))
 
-	router.HandlerFunc(http.MethodGet, "/v1/document/suggestions/:id", app.getSuggestions)
+	router.HandlerFunc(http.MethodGet, "/v1/suggestions/:id", app.getSuggestions)
 
-	router.HandlerFunc(http.MethodPost, "/v1/document/borrow", app.borrowDocument)
-	router.HandlerFunc(http.MethodPost, "/v1/document/return/:id", app.returnDocument)
-	router.HandlerFunc(http.MethodGet, "/v1/document/status/:id", app.getBorrowedDocumentStatus)
+	router.HandlerFunc(http.MethodPost, "/v1/borrow", app.borrowDocument)
+	router.HandlerFunc(http.MethodPost, "/v1/return/:id", app.returnDocument)
+	router.HandlerFunc(http.MethodGet, "/v1/status/:id", app.getBorrowedDocumentStatus)
 
 	router.HandlerFunc(http.MethodPost, "/v1/user/signup", app.userSignup)
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.authenticationTokenHandler)

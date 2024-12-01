@@ -68,7 +68,7 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Username != "", "username", "must be provided")
 	v.Check(len(user.Username) <= 500, "username", "must be at most 500 characters long")
-	v.Check(user.Role > 0 && user.Role < 3, "role", "must be a valid role")
+	v.Check(user.Role > 0 && user.Role <= 3, "role", "must be a valid role")
 	ValidateEmail(v, user.Email)
 
 	if user.Password.plaintext != nil {
