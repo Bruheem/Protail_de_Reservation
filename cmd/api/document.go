@@ -155,13 +155,13 @@ func (app *application) getSuggestions(w http.ResponseWriter, r *http.Request) {
 func (app *application) borrowDocument(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
-		userID     int
-		documentID int
-		dueDays    int
+		UserID     int `json:"user_id"`
+		DocumentID int `json:"document_id"`
+		DueDays    int `json:"due_days"`
 	}
 	app.readJSON(w, r, &input)
 
-	err := app.lending.BorrowDocument(input.userID, input.documentID, input.dueDays)
+	err := app.lending.BorrowDocument(input.UserID, input.DocumentID, input.DueDays)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -173,7 +173,7 @@ func (app *application) borrowDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.logger.Printf("User %d borrowed document %d", input.userID, input.documentID)
+	app.logger.Printf("User %d borrowed document %d", input.UserID, input.DocumentID)
 }
 
 func (app *application) returnDocument(w http.ResponseWriter, r *http.Request) {
