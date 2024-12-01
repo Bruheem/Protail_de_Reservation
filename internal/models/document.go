@@ -3,6 +3,8 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type Document struct {
@@ -84,18 +86,67 @@ func (m *DocumentModel) DeleteDocument(id uint64) error {
 
 func (m *DocumentModel) GetSuggestedContent(userID uint64) ([]Document, error) {
 
+	// Get all user books
+
 	query := `
-		SELECT d.DocumentID, d.title, d.author
+		SELECT d.DocumentID
 		FROM lending l
 		JOIN user u ON l.user_id = u.id
 		JOIN document d ON l.document_id = d.DocumentID
 		WHERE l.user_id = ?
 	`
 
+	docs := []uint64{}
 	result, err := m.DB.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
+	defer result.Close()
 
-	return nil, nil
+	for result.Next() {
+		var docID uint64
+		if err := result.Scan(&docID); err != nil {
+			return nil, err
+		}
+		docs = append(docs, docID)
+	}
+
+	// Get all suggested content without the ones that the user has already lent
+
+	suggestedDocs := []Document{}
+
+	if len(docs) > 0 {
+		IDs := make([]string, len(docs))
+		for i, id := range docs {
+			IDs[i] = fmt.Sprintf("%d", id)
+		}
+		docsString := strings.Join(IDs, ",")
+
+		suggestQuery := fmt.Sprintf(`
+			SELECT d.DocumentID, d.title, d.author
+			FROM document d
+			WHERE d.DocumentID NOT IN (%s)
+			ORDER BY RAND()
+			LIMIT 10
+		`, docsString)
+
+		rows, err := m.DB.Query(suggestQuery)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var doc Document
+			if err := rows.Scan(&doc.ID, &doc.Title, &doc.Author); err != nil {
+				return nil, err
+			}
+			suggestedDocs = append(suggestedDocs, doc)
+		}
+	} else {
+		// no books lent, no suggestions
+		return suggestedDocs, nil
+	}
+
+	return suggestedDocs, nil
 }

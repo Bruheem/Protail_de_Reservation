@@ -24,6 +24,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPut, "/v1/document/:id", app.libAdminMiddleware(http.HandlerFunc(app.updateDocumentHandler)))
 	router.Handler(http.MethodDelete, "/v1/document/:id", app.libAdminMiddleware(http.HandlerFunc(app.deleteDocumentHandler)))
 
+	router.HandlerFunc(http.MethodGet, "/v1/document/suggestions/:id", app.getSuggestions)
+
 	router.HandlerFunc(http.MethodPost, "/v1/user/signup", app.userSignup)
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.authenticationTokenHandler)
 

@@ -132,3 +132,22 @@ func (app *application) deleteDocumentHandler(w http.ResponseWriter, r *http.Req
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) getSuggestions(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	suggestedContent, err := app.document.GetSuggestedContent(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"suggestedContent": suggestedContent}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
