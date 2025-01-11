@@ -137,7 +137,7 @@ func (m *DocumentModel) GetPopular() ([]*Document, error) {
 		SELECT d.DocumentID, d.title, COUNT(l.id) AS num_borrows
 		FROM document d
 		LEFT JOIN lending l ON d.DocumentID = l.document_id
-		GROUP BY d.id
+		GROUP BY d.DocumentID
 		ORDER BY num_borrows DESC
 		LIMIT 10
 	`

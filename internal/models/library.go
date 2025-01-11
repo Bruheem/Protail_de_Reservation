@@ -111,7 +111,7 @@ func (m *LibraryModel) Search(query string) ([]*Library, error) {
 
 func (m *LibraryModel) GetPopular() ([]*Library, error) {
 	query := `
-		SELECT l.LibraryID, l.name, COUNT(s.id) AS num_subscribers
+		SELECT l.LibraryID, l.name, COUNT(s.subscriptionID) AS num_subscribers
 		FROM library l
 		LEFT JOIN subscription s ON l.LibraryID = s.libraryID
 		GROUP BY l.LibraryID

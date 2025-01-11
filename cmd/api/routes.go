@@ -51,7 +51,7 @@ func (app *application) routes() http.Handler {
 
 	// Recommendations Management
 	router.HandlerFunc(http.MethodGet, "/v1/recommendations/libraries", app.recommendLibraries)
-	router.HandlerFunc(http.MethodGet, "/v1/recommendations/libraries", app.recommendDocuments)
+	router.HandlerFunc(http.MethodGet, "/v1/recommendations/documents", app.recommendDocuments)
 
 	// middlware to accept CORS from the frontend server
 	c := cors.New(cors.Options{
