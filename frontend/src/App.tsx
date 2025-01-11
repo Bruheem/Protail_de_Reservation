@@ -1,23 +1,48 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./Pages/Login";
-import UserPage from "./Pages/UserPage";
-import LibAdminPage from "./Pages/LibAdminPage";
-import AdminPage from "./Pages/AdminPage";
+import Register from "./Pages/Register";
+import ProctectedRoute from "./utils/ProtectedRoute";
+import { AuthProvider } from "./utils/AuthContext";
+import UserDashboard from "./Pages/User/UserDashboard";
+import LibrarianDashboard from "./Pages/Librarian/LibrarianDashboard";
+import AdminDashboard from "./Pages/Admin/AdminDashboard";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <div className="d-flex">
-        <div className="flex-grow-1">
-          <Routes>
-            <Route path="/" element={<Login></Login>} />
-            <Route path="/user" element={<UserPage></UserPage>} />
-            <Route path="/libadmin" element={<LibAdminPage></LibAdminPage>} />
-            <Route path="/admin" element={<AdminPage></AdminPage>} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+            <Routes>
+              <Route path="/login" element={<Login></Login>} />
+              <Route path="/register" element={<Register></Register>} />
+              <Route
+                path="/dashboard/user"
+                element={
+                  <ProctectedRoute allowedRoles={["user"]}>
+                    <UserDashboard />
+                  </ProctectedRoute>
+                }
+              />
+      
+              <Route
+                path="/dashboard/librarian"
+                element={
+                  <ProctectedRoute allowedRoles={["librarian"]}>
+                    <LibrarianDashboard />
+                  </ProctectedRoute>
+                }
+              />
+      
+              <Route
+                path="/dashboard/admin"
+                element={
+                  <ProctectedRoute allowedRoles={["admin"]}>
+                    <AdminDashboard />
+                  </ProctectedRoute>
+                }
+              />
+            </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 

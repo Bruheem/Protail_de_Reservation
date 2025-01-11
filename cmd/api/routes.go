@@ -56,6 +56,8 @@ func (app *application) routes() http.Handler {
 	// middlware to accept CORS from the frontend server
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 	})
 
