@@ -39,10 +39,12 @@ type application struct {
 
 func main() {
 	var cfg config
+	var seed bool
 
 	dsn := flag.String("dsn", "ibrahim:ibrahim@/PDRE?parseTime=true", "MySQL date source name")
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Server  environment")
+	flag.BoolVar(&seed, "seed", false, "Run database seeders")
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "INFO:\t", log.Ltime)
@@ -54,6 +56,13 @@ func main() {
 
 	logger.Println("starting database server")
 	defer db.Close()
+
+	if seed {
+		if err := RunSeeders(db); err != nil {
+			logger.Fatalf("Error running seeders: %v", err)
+		}
+		logger.Println("Seeding completed successfully.")
+	}
 
 	app := &application{
 		config:   cfg,
@@ -88,4 +97,32 @@ func openDB(dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func RunSeeders(db *sql.DB) error {
+	seeder := models.NewSeeder(db)
+
+	if err := seeder.UserRoleSeeder.Seed(); err != nil {
+		return err
+	}
+
+	if err := seeder.UserSeeder.Seed(); err != nil {
+		return err
+	}
+	if err := seeder.LibrarySeeder.Seed(); err != nil {
+		return err
+	}
+	if err := seeder.GenreSeeder.Seed(); err != nil {
+		return err
+	}
+	if err := seeder.DocumentTypeSeeder.Seed(); err != nil {
+		return err
+	}
+	if err := seeder.DocumentSeeder.Seed(); err != nil {
+		return err
+	}
+	if err := seeder.SubscriptionSeeder.Seed(); err != nil {
+		return err
+	}
+	return nil
 }
