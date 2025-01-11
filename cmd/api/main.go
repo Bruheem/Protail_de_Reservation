@@ -61,6 +61,7 @@ func main() {
 		library:  &models.LibraryModel{DB: db},
 		user:     &models.UserModel{DB: db},
 		document: &models.DocumentModel{DB: db},
+		lending:  &models.LendingModel{DB: db},
 	}
 
 	srv := &http.Server{
