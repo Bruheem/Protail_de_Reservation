@@ -18,7 +18,7 @@ func (app *application) register(w http.ResponseWriter, r *http.Request) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 		Email    string `json:"email"`
-		Role     int    `json:"role"`
+		Role     string `json:"role"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -121,7 +121,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token:": token, "user": user}, nil)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"token:": token, "user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

@@ -21,7 +21,7 @@ type User struct {
 	Username string   `json:"username"`
 	Email    string   `json:"email"`
 	Password password `json:"-"`
-	Role     int      `json:"role"`
+	Role     string   `json:"role"`
 }
 
 type password struct {
@@ -68,7 +68,7 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Username != "", "username", "must be provided")
 	v.Check(len(user.Username) <= 500, "username", "must be at most 500 characters long")
-	v.Check(user.Role > 0 && user.Role <= 3, "role", "must be a valid role")
+	v.Check(user.Role != "", "role", "must be a valid role")
 	ValidateEmail(v, user.Email)
 
 	if user.Password.plaintext != nil {
@@ -85,20 +85,32 @@ type UserModel struct {
 }
 
 func (m *UserModel) Insert(user *User) error {
-	query := `INSERT INTO user (username, password, email, userRoleID) 
-              VALUES (?, ?, ?, ?);`
+
+	roleMap := map[string]int{
+		"admin":     1,
+		"librarian": 2,
+		"user":      3,
+	}
+
+	roleID, exists := roleMap[user.Role]
+	if !exists {
+		return errors.New("invalid role")
+	}
+
+	insertQuery := `INSERT INTO user (username, password, email, userRoleID) 
+                    VALUES (?, ?, ?, ?);`
 
 	args := []interface{}{
 		user.Username,
 		user.Password.hash,
 		user.Email,
-		user.Role,
+		roleID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, query, args...)
+	result, err := m.DB.ExecContext(ctx, insertQuery, args...)
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), "email"):
@@ -112,6 +124,7 @@ func (m *UserModel) Insert(user *User) error {
 	if err != nil {
 		return err
 	}
+
 	user.ID = strconv.FormatInt(lastInsertID, 10)
 	return nil
 }
@@ -131,7 +144,14 @@ func (m *UserModel) Update(user *User) error {
 }
 
 func (m UserModel) GetByEmail(email string) (*User, error) {
-	query := `SELECT id, username, password, email, userRoleID FROM user WHERE email = ?`
+	// query := `SELECT id, username, password, email, userRoleID FROM user WHERE email = ?`
+
+	query := `
+    SELECT u.id, u.username, u.password, u.email, r.RoleName as role
+    FROM user u
+    JOIN userRole r ON u.userRoleID = r.userRoleID
+    WHERE u.email = ?
+	`
 
 	var user User
 
