@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -92,4 +93,29 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 	}
 
 	return nil
+}
+
+func (app *application) extractUserIDFromToken(r *http.Request) (int64, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return 0, errors.New("missing authorization header")
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	claims := &jwt.StandardClaims{}
+
+	secretKey := []byte(app.config.jwt.secret)
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	userID, err := strconv.ParseInt(claims.Subject, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }

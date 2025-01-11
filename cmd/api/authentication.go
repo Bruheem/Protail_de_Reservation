@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"net/http"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +13,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) register(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -69,7 +69,8 @@ type Token struct {
 	Expiration time.Time `json:"expiration"`
 }
 
-func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) login(w http.ResponseWriter, r *http.Request) {
+
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
