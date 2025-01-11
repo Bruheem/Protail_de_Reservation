@@ -30,9 +30,11 @@ type application struct {
 	config config
 	logger *log.Logger
 
-	library  *models.LibraryModel
-	document *models.DocumentModel
-	user     *models.UserModel
+	library      *models.LibraryModel
+	document     *models.DocumentModel
+	user         *models.UserModel
+	subscription *models.SubscriptionModel
+	lending      *models.LendingModel
 }
 
 func main() {

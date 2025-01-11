@@ -6,16 +6,17 @@ import (
 )
 
 type Library struct {
-	ID        uint64
-	Name      string
-	CreatedBy string
+	ID             uint64
+	Name           string
+	CreatedBy      string
+	NumSubscribers int
 }
 
 type LibraryModel struct {
 	DB *sql.DB
 }
 
-func (m *LibraryModel) GetLibrary(id uint64) (*Library, error) {
+func (m *LibraryModel) Get(id uint64) (*Library, error) {
 
 	query := "SELECT LibraryID, Name, CreatedBy FROM library WHERE LibraryID = ?"
 
@@ -30,7 +31,7 @@ func (m *LibraryModel) GetLibrary(id uint64) (*Library, error) {
 	return lib, nil
 }
 
-func (m *LibraryModel) InsertLibrary(title, createdby string) (uint64, error) {
+func (m *LibraryModel) Insert(title, createdby string) (uint64, error) {
 
 	query := "INSERT INTO library (Name, CreatedBy) VALUES (?, ?)"
 	result, err := m.DB.Exec(query, title, createdby)
@@ -46,7 +47,7 @@ func (m *LibraryModel) InsertLibrary(title, createdby string) (uint64, error) {
 	return uint64(id), err
 }
 
-func (m *LibraryModel) UpdateLibrary(lib *Library) {
+func (m *LibraryModel) Update(lib *Library) {
 	query := "UPDATE library SET Name = ?, CreatedBy = ? WHERE LibraryID = ?"
 
 	args := []interface{}{
@@ -58,7 +59,7 @@ func (m *LibraryModel) UpdateLibrary(lib *Library) {
 	m.DB.QueryRow(query, args...)
 }
 
-func (m *LibraryModel) DeleteLibrary(id uint64) error {
+func (m *LibraryModel) Delete(id uint64) error {
 	query := "DELETE FROM library WHERE LibraryID = ?"
 
 	result, err := m.DB.Exec(query, id)
@@ -76,4 +77,63 @@ func (m *LibraryModel) DeleteLibrary(id uint64) error {
 	}
 
 	return nil
+}
+
+func (m *LibraryModel) Search(query string) ([]*Library, error) {
+
+	sqlQuery := `
+		SELECT * 
+		FROM library
+		WHERE 
+			(name LIKE CONCAT('%', ?, '%')
+		ORDER BY name
+	`
+
+	rows, err := m.DB.Query(sqlQuery, "%"+query+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var libraries []*Library
+	for rows.Next() {
+		library := &Library{}
+
+		if err := rows.Scan(&library.ID, &library.Name, &library.CreatedBy); err != nil {
+			return nil, err
+		}
+
+		libraries = append(libraries, library)
+	}
+
+	return libraries, nil
+}
+
+func (m *LibraryModel) GetPopular() ([]*Library, error) {
+	query := `
+		SELECT l.LibraryID, l.name, COUNT(s.id) AS num_subscribers
+		FROM library l
+		LEFT JOIN subscription s ON l.LibraryID = s.libraryID
+		GROUP BY l.LibraryID
+		ORDER BY num_subscribers DESC
+		LIMIT 10
+	`
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var libraries []*Library
+	for rows.Next() {
+		lib := &Library{}
+		err := rows.Scan(&lib.ID, &lib.Name, &lib.NumSubscribers)
+		if err != nil {
+			return nil, err
+		}
+		libraries = append(libraries, lib)
+	}
+
+	return libraries, nil
 }

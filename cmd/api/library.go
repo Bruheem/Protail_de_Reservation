@@ -15,7 +15,7 @@ func (app *application) showLibraryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	lib, err := app.library.GetLibrary(id)
+	lib, err := app.library.Get(id)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -51,7 +51,7 @@ func (app *application) createLibraryHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	id, err := app.library.InsertLibrary(library.Name, library.CreatedBy)
+	id, err := app.library.Insert(library.Name, library.CreatedBy)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -67,7 +67,7 @@ func (app *application) updateLibraryHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	lib, err := app.library.GetLibrary(id)
+	lib, err := app.library.Get(id)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -93,7 +93,7 @@ func (app *application) updateLibraryHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	app.library.UpdateLibrary(lib)
+	app.library.Update(lib)
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"library": lib}, nil)
 	if err != nil {
@@ -108,13 +108,43 @@ func (app *application) deleteLibraryHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = app.library.DeleteLibrary(id)
+	err = app.library.Delete(id)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"message": "library deleted"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) searchLibraries(w http.ResponseWriter, r *http.Request) {
+
+	query := r.URL.Query().Get("query")
+
+	libs, err := app.library.Search(query)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"libraries": libs}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *application) recommendLibraries(w http.ResponseWriter, r *http.Request) {
+	libraries, err := app.library.GetPopular()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"recommended_libraries": libraries}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

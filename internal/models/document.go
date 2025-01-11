@@ -13,6 +13,7 @@ type Document struct {
 	YearPublished  int
 	LibraryID      int
 	DocumentTypeID int
+	NumBorrows     int
 }
 
 type DocumentModel struct {
@@ -82,20 +83,80 @@ func (m *DocumentModel) DeleteDocument(id uint64) error {
 	return nil
 }
 
-func (m *DocumentModel) GetSuggestedContent(userID uint64) ([]Document, error) {
+func (m *DocumentModel) IsAvailable(documentID uint64) (bool, error) {
+	query := "SELECT DocumentID FROM document WHERE DocumentID = ?"
 
-	query := `
-		SELECT d.DocumentID, d.title, d.author
-		FROM lending l
-		JOIN user u ON l.user_id = u.id
-		JOIN document d ON l.document_id = d.DocumentID
-		WHERE l.user_id = ?
+	_, err := m.DB.Exec(query, documentID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, errors.New("document not found")
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (m *DocumentModel) SearchDocuments(query, genre, docType string, libraryID int) ([]*Document, error) {
+
+	querySQL := `
+		SELECT d.*, g.name AS genre, dt.documentTypeName AS document_type
+		FROM document d
+		LEFT JOIN DocGenres dg ON d.DocumentID = dg.doc_id
+		LEFT JOIN Genres g ON dg.genre_id = g.id
+		LEFT JOIN documentType dt ON d.documentTypeID = dt.documentTypeID
+		WHERE
+			(d.title LIKE CONCAT('%', ?, '%') OR d.author LIKE CONCAT('%', ?, '%'))
+			AND (? IS NULL OR g.name = ?)
+			AND (? IS NULL OR dt.documentTypeName = ?)
+			AND (? IS NULL OR d.libraryID = ?)
+		ORDER BY d.title
 	`
 
-	result, err := m.DB.Query(query, userID)
+	rows, err := m.DB.Query(querySQL, query, query, genre, genre, docType, docType, libraryID, libraryID)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	return nil, nil
+	var documents []*Document
+	for rows.Next() {
+		doc := &Document{}
+		err := rows.Scan(&doc.ID, &doc.Title, &doc.Author, &doc.YearPublished, &doc.ISBN, &doc.LibraryID, &doc.DocumentTypeID)
+		if err != nil {
+			return nil, err
+		}
+		documents = append(documents, doc)
+	}
+
+	return documents, nil
+}
+
+func (m *DocumentModel) GetPopular() ([]*Document, error) {
+	sqlQuery := `
+		SELECT d.DocumentID, d.title, COUNT(l.id) AS num_borrows
+		FROM document d
+		LEFT JOIN lending l ON d.DocumentID = l.document_id
+		GROUP BY d.id
+		ORDER BY num_borrows DESC
+		LIMIT 10
+	`
+
+	rows, err := m.DB.Query(sqlQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var documents []*Document
+	for rows.Next() {
+		doc := &Document{}
+		err := rows.Scan(&doc.ID, &doc.Title, &doc.NumBorrows)
+		if err != nil {
+			return nil, err
+		}
+		documents = append(documents, doc)
+	}
+
+	return documents, nil
 }
