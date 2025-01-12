@@ -85,8 +85,8 @@ func (m *LibraryModel) Search(query string) ([]*Library, error) {
 		SELECT * 
 		FROM library
 		WHERE 
-			(name LIKE CONCAT('%', ?, '%')
-		ORDER BY name
+			Name LIKE CONCAT('%', ?, '%')
+		ORDER BY Name
 	`
 
 	rows, err := m.DB.Query(sqlQuery, "%"+query+"%")

@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/Bruheem/Portail_de_Reservation/internal/data"
 	"github.com/Bruheem/Portail_de_Reservation/internal/models"
@@ -228,11 +227,8 @@ func (app *application) showBorrowedDocument(w http.ResponseWriter, r *http.Requ
 func (app *application) searchDocuments(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query().Get("query")
-	genre := r.URL.Query().Get("genre")
-	docType := r.URL.Query().Get("type")
-	libraryID, _ := strconv.Atoi(r.URL.Query().Get("library_id"))
 
-	documents, err := app.document.SearchDocuments(query, genre, docType, libraryID)
+	documents, err := app.document.SearchDocuments(query)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

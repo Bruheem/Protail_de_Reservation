@@ -97,23 +97,17 @@ func (m *DocumentModel) IsAvailable(documentID uint64) (bool, error) {
 	return true, nil
 }
 
-func (m *DocumentModel) SearchDocuments(query, genre, docType string, libraryID int) ([]*Document, error) {
+func (m *DocumentModel) SearchDocuments(query string) ([]*Document, error) {
 
 	querySQL := `
-		SELECT d.*, g.name AS genre, dt.documentTypeName AS document_type
-		FROM document d
-		LEFT JOIN DocGenres dg ON d.DocumentID = dg.doc_id
-		LEFT JOIN Genres g ON dg.genre_id = g.id
-		LEFT JOIN documentType dt ON d.documentTypeID = dt.documentTypeID
-		WHERE
-			(d.title LIKE CONCAT('%', ?, '%') OR d.author LIKE CONCAT('%', ?, '%'))
-			AND (? IS NULL OR g.name = ?)
-			AND (? IS NULL OR dt.documentTypeName = ?)
-			AND (? IS NULL OR d.libraryID = ?)
-		ORDER BY d.title
+    SELECT d.*
+    FROM document d
+    WHERE 
+        (d.title LIKE CONCAT('%', ?, '%') OR d.author LIKE CONCAT('%', ?, '%'))
+    ORDER BY d.title
 	`
 
-	rows, err := m.DB.Query(querySQL, query, query, genre, genre, docType, docType, libraryID, libraryID)
+	rows, err := m.DB.Query(querySQL, query, query)
 	if err != nil {
 		return nil, err
 	}
