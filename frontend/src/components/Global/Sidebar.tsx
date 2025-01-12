@@ -1,28 +1,27 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-interface SidebarProps {
-  links: { name: string; path: string }[];
-}
+type SidebarRoute = {
+  path: string;
+  name: string;
+};
 
-const Sidebar: React.FC<SidebarProps> = ({ links }) => {
+type SidebarProps = {
+  routes: SidebarRoute[];
+};
+
+const Sidebar: React.FC<SidebarProps> = ({ routes }) => {
   return (
-    <div className="bg-light border-end vh-100" style={{ width: "250px" }}>
-      <div className="list-group list-group-flush">
-        {links.map((link, idx) => (
-          <NavLink
-            key={idx}
-            to={link.path}
-            className={({ isActive }) =>
-              isActive
-                ? "list-group-item list-group-item-action active"
-                : "list-group-item list-group-item-action"
-            }
-          >
-            {link.name}
-          </NavLink>
+    <div className="sidebar bg-light p-3">
+      <ul className="nav flex-column">
+        {routes.map((route) => (
+          <li className="nav-item" key={route.path}>
+            <Link to={route.path} className="nav-link">
+              {route.name}
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 };

@@ -11,36 +11,36 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
-            <Routes>
-              <Route path="/login" element={<Login></Login>} />
-              <Route path="/register" element={<Register></Register>} />
-              <Route
-                path="/dashboard/user"
-                element={
-                  <ProctectedRoute allowedRoles={["user"]}>
-                    <UserDashboard />
-                  </ProctectedRoute>
-                }
-              />
-      
-              <Route
-                path="/dashboard/librarian"
-                element={
-                  <ProctectedRoute allowedRoles={["librarian"]}>
-                    <LibrarianDashboard />
-                  </ProctectedRoute>
-                }
-              />
-      
-              <Route
-                path="/dashboard/admin"
-                element={
-                  <ProctectedRoute allowedRoles={["admin"]}>
-                    <AdminDashboard />
-                  </ProctectedRoute>
-                }
-              />
-            </Routes>
+        <Routes>
+          <Route path="/login" element={<Login></Login>} />
+          <Route path="/register" element={<Register></Register>} />
+          <Route
+            path="/dashboard/user"
+            element={
+              <ProctectedRoute allowedRoles={["user"]}>
+                <UserDashboard />
+              </ProctectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/librarian"
+            element={
+              <ProctectedRoute allowedRoles={["librarian"]}>
+                <LibrarianDashboard />
+              </ProctectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/admin"
+            element={
+              <ProctectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProctectedRoute>
+            }
+          />
+        </Routes>
       </Router>
     </AuthProvider>
   );

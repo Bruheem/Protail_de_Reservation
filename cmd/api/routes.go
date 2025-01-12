@@ -16,7 +16,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
 	// Library Endpoints
-	router.HandlerFunc(http.MethodGet, "/v1/libraries", app.searchLibraries)
+	router.HandlerFunc(http.MethodGet, "/v1/search/libraries", app.searchLibraries)
 	router.HandlerFunc(http.MethodGet, "/v1/libraries/:id", app.showLibraryHandler)
 	router.Handler(http.MethodPost, "/v1/libraries", app.adminMiddleware(http.HandlerFunc(app.createLibraryHandler)))
 	router.Handler(http.MethodPut, "/v1/libraries/:id", app.adminMiddleware(http.HandlerFunc(app.updateLibraryHandler)))
@@ -24,7 +24,7 @@ func (app *application) routes() http.Handler {
 
 	// Document Endpoints
 	router.HandlerFunc(http.MethodPost, "/v1/document/:id/request", app.borrowDocument)
-	router.HandlerFunc(http.MethodGet, "/v1/documents", app.searchDocuments)
+	router.HandlerFunc(http.MethodGet, "/v1/search/documents", app.searchDocuments)
 	router.HandlerFunc(http.MethodGet, "/v1/documents/:id", app.showDocumentHandler)
 	router.Handler(http.MethodPost, "/v1/documents", app.libAdminMiddleware(http.HandlerFunc(app.createDocumentHandler)))
 	router.Handler(http.MethodPut, "/v1/documents/:id", app.libAdminMiddleware(http.HandlerFunc(app.updateDocumentHandler)))

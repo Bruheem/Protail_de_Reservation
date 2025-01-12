@@ -15,13 +15,16 @@ const Header: React.FC = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
         <a className="navbar-brand" href="/">
-          Library Management
+          PDRE
         </a>
         <div className="d-flex">
           <span className="navbar-text text-white me-3">
-            Welcome, {user?.role.toUpperCase()}
+            Welcome, {user?.username}
           </span>
-          <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
+          <button
+            className="btn btn-outline-light btn-sm"
+            onClick={handleLogout}
+          >
             Logout
           </button>
         </div>
