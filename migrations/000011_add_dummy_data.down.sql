@@ -1,4 +1,0 @@
-TRUNCATE TABLE library;
-TRUNCATE TABLE documentType;
-TRUNCATE TABLE Genres;
-TRUNCATE TABLE userRole;
