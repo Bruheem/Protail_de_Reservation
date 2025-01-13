@@ -26,9 +26,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/document/:id/request", app.borrowDocument)
 	router.HandlerFunc(http.MethodGet, "/v1/search/documents", app.searchDocuments)
 	router.HandlerFunc(http.MethodGet, "/v1/documents/:id", app.showDocumentHandler)
-	router.Handler(http.MethodPost, "/v1/documents", app.libAdminMiddleware(http.HandlerFunc(app.createDocumentHandler)))
-	router.Handler(http.MethodPut, "/v1/documents/:id", app.libAdminMiddleware(http.HandlerFunc(app.updateDocumentHandler)))
-	router.Handler(http.MethodDelete, "/v1/documents/:id", app.libAdminMiddleware(http.HandlerFunc(app.deleteDocumentHandler)))
+	router.Handler(http.MethodPost, "/v1/documents", app.librarianMiddleware(http.HandlerFunc(app.createDocumentHandler)))
+	router.Handler(http.MethodPut, "/v1/documents/:id", app.librarianMiddleware(http.HandlerFunc(app.updateDocumentHandler)))
+	router.Handler(http.MethodDelete, "/v1/documents/:id", app.librarianMiddleware(http.HandlerFunc(app.deleteDocumentHandler)))
 
 	// Authentication Endpoints
 	router.HandlerFunc(http.MethodPost, "/v1/auth/register", app.register)

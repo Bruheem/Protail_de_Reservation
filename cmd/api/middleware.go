@@ -1,27 +1,49 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func (app *application) adminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		userRole := r.Header.Get("userRole")
-		if userRole != "admin" {
+		isAuthorized := app.authorizationMiddleware(r, "admin")
+		if !isAuthorized {
 			app.unauthorizedAccessResponse(w, r)
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	})
 }
 
-func (app *application) libAdminMiddleware(next http.Handler) http.Handler {
+func (app *application) librarianMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		userRole := r.Header.Get("userRole")
-		if userRole != "libadmin" {
+		isAuthorized := app.authorizationMiddleware(r, "librarian")
+		if !isAuthorized {
 			app.unauthorizedAccessResponse(w, r)
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) authorizationMiddleware(r *http.Request, role string) bool {
+	userID, err := app.extractUserIDFromToken(r)
+	if err != nil {
+		return false
+	}
+
+	user, err := app.user.GetByID(userID)
+	if err != nil {
+		return false
+	}
+
+	if user.Role != role {
+		return false
+	}
+
+	return true
 }

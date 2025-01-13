@@ -177,3 +177,32 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 
 	return &user, nil
 }
+
+func (m *UserModel) GetByID(id int64) (*User, error) {
+
+	var user User
+
+	query := `
+		SELECT * FROM user
+		WHERE id = ?
+	`
+
+	err := m.DB.QueryRow(query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Password.hash,
+		&user.Email,
+		&user.Role,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, errors.New("no record found")
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
+}
