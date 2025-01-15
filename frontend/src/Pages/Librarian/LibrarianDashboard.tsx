@@ -10,7 +10,7 @@ const LibrarianDashboard: React.FC = () => {
 
   return (
     <div className="d-flex">
-      <Sidebar links={links} />
+      <Sidebar routes={links} />
       <div className="flex-grow-1">
         <Header />
         <div className="container mt-4">

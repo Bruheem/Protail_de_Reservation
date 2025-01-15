@@ -187,7 +187,7 @@ func (app *application) returnDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	borrow, err := app.lending.GetBorrowingID(int64(id))
+	borrow, err := app.lending.GetBorrowingID(int64(id), userID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -248,4 +248,25 @@ func (app *application) recommendDocuments(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) getBorrowedDocument(w http.ResponseWriter, r *http.Request) {
+
+	id, err := app.extractUserIDFromToken(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	Borrowed, err := app.document.GetBorrowedDocuments(int64(id))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"borrowed_document": Borrowed}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
 }

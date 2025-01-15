@@ -80,3 +80,21 @@ func (app *application) unsubscribe(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) getUserSubscriptions(w http.ResponseWriter, r *http.Request) {
+	userID, err := app.extractUserIDFromToken(r)
+	if err != nil {
+		app.unauthorizedAccessResponse(w, r)
+		return
+	}
+
+	libs, err := app.library.GetSubscribedLibraries(userID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"subscriptions": libs}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

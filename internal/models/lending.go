@@ -6,26 +6,26 @@ import (
 )
 
 type Lending struct {
-	ID          int64     `json:"id"`
-	User_id     int64     `json:"user_id"`
-	Document_id int64     `json:"document_id"`
-	Borrow_date time.Time `json:"borrow_date"`
-	Due_date    time.Time `json:"due_date"`
-	Return_date time.Time `json:"return_date"`
-	Status      string    `json:"status"`
+	ID          int64        `json:"id"`
+	User_id     int64        `json:"user_id"`
+	Document_id int64        `json:"document_id"`
+	Borrow_date time.Time    `json:"borrow_date"`
+	Due_date    time.Time    `json:"due_date"`
+	Status      string       `json:"status"`
+	ReturnDate  sql.NullTime `json:"return_date"`
 }
 
 type BorrowedDocument struct {
-	DocumentID    int64      `json:"document_id"`
-	Title         string     `json:"title"`
-	Author        string     `json:"author"`
-	YearPublished int        `json:"year_published"`
-	ISBN          string     `json:"isbn"`
-	LibraryID     int64      `json:"library_id"`
-	BorrowedAt    time.Time  `json:"borrowed_at"`
-	DueAt         time.Time  `json:"due_at"`
-	ReturnedAt    *time.Time `json:"returned_at,omitempty"`
-	Status        string     `json:"status"`
+	DocumentID    int64        `json:"document_id"`
+	Title         string       `json:"title"`
+	Author        string       `json:"author"`
+	YearPublished int          `json:"year_published"`
+	ISBN          string       `json:"isbn"`
+	LibraryID     int64        `json:"library_id"`
+	BorrowedAt    time.Time    `json:"borrowed_at"`
+	DueAt         time.Time    `json:"due_at"`
+	Status        string       `json:"status"`
+	ReturnDate    sql.NullTime `json:"return_date"`
 }
 
 type LendingModel struct {
@@ -41,9 +41,9 @@ func (m *LendingModel) GetBorrowedDocuments(userID int64) ([]*BorrowedDocument, 
 			d.yearPublished,
 			d.ISBN,
 			d.libraryID,
-			l.borrowed_date,
+			l.borrow_date,
 			l.due_date,
-			l.returned_date,
+			l.return_date,
 			l.status
 		FROM 
 			lending l
@@ -73,12 +73,17 @@ func (m *LendingModel) GetBorrowedDocuments(userID int64) ([]*BorrowedDocument, 
 			&doc.LibraryID,
 			&doc.BorrowedAt,
 			&doc.DueAt,
-			&doc.ReturnedAt,
+			&doc.ReturnDate,
 			&doc.Status,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		if doc.ReturnDate.Valid && doc.ReturnDate.Time.Equal(time.Date(9999, 12, 31, 0, 0, 0, 0, time.UTC)) {
+			doc.ReturnDate = sql.NullTime{}
+		}
+
 		borrowedDocs = append(borrowedDocs, doc)
 	}
 
@@ -89,10 +94,10 @@ func (m *LendingModel) GetBorrowedDocuments(userID int64) ([]*BorrowedDocument, 
 	return borrowedDocs, nil
 }
 
-func (m *LendingModel) GetBorrowingID(id int64) (*Lending, error) {
+func (m *LendingModel) GetBorrowingID(id, userID int64) (*Lending, error) {
 
-	query := `SELECT id, user_id FROM lending WHERE id = ?`
-	row := m.DB.QueryRow(query, id)
+	query := `SELECT id, user_id FROM lending WHERE document_id = ? AND user_id = ?`
+	row := m.DB.QueryRow(query, id, userID)
 	borrow := &Lending{}
 
 	err := row.Scan(&borrow.ID, &borrow.User_id)
@@ -104,10 +109,12 @@ func (m *LendingModel) GetBorrowingID(id int64) (*Lending, error) {
 }
 
 func (m *LendingModel) BorrowDocument(userID, documentID int64) (int64, error) {
+	defaultReturnDate := "9999-12-31 00:00:00"
+
 	query := `
-        INSERT INTO lending (user_id, document_id, borrowed_date, due_date, status)
-        VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY), ?)`
-	result, err := m.DB.Exec(query, userID, documentID, "borrowed")
+        INSERT INTO lending (user_id, document_id, borrow_date, due_date, return_date, status)
+        VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY), ?, ?)`
+	result, err := m.DB.Exec(query, userID, documentID, defaultReturnDate, "borrowed")
 	if err != nil {
 		return 0, err
 	}

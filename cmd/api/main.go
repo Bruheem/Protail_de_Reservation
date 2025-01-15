@@ -65,12 +65,13 @@ func main() {
 	}
 
 	app := &application{
-		config:   cfg,
-		logger:   logger,
-		library:  &models.LibraryModel{DB: db},
-		user:     &models.UserModel{DB: db},
-		document: &models.DocumentModel{DB: db},
-		lending:  &models.LendingModel{DB: db},
+		config:       cfg,
+		logger:       logger,
+		library:      &models.LibraryModel{DB: db},
+		user:         &models.UserModel{DB: db},
+		document:     &models.DocumentModel{DB: db},
+		lending:      &models.LendingModel{DB: db},
+		subscription: &models.SubscriptionModel{DB: db},
 	}
 
 	srv := &http.Server{

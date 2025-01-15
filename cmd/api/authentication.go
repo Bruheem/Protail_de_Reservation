@@ -71,6 +71,8 @@ type Token struct {
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
 
+	app.logger.Println("a user is attempting to login")
+
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -97,8 +99,10 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case strings.Contains(err.Error(), "found"):
 			app.invalidCredentialsResponse(w, r)
+			app.logger.Println("user failed to authenticate: Bad credentials")
 		default:
 			app.serverErrorResponse(w, r, err)
+			app.logger.Println("the server couldn't resolve user's authentication")
 		}
 		return
 	}
@@ -106,11 +110,13 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	match, err := user.Password.Matches(input.Password)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		app.logger.Println("unable to convert password to hash")
 		return
 	}
 
 	if !match {
 		app.invalidCredentialsResponse(w, r)
+		app.logger.Println("mismatched password")
 		return
 	}
 
@@ -121,7 +127,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"token:": token, "user": user}, nil)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"token": token, "user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

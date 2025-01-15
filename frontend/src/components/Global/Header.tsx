@@ -8,19 +8,19 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/auth");
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
       <div className="container-fluid">
-        <a className="navbar-brand" href="/">
-          PDRE
+        <a className="navbar-brand" href="/user">
+          <span className="ms-2">PDRE</span>
         </a>
-        <div className="d-flex">
-          <span className="navbar-text text-white me-3">
-            Welcome, {user?.username}
-          </span>
+        <div className="d-flex justify-content-between align-items-center w-100">
+          <div className="flex-grow-1 text-center">
+            <span className="text-white">Welcome, {user?.username}</span>
+          </div>
           <button
             className="btn btn-outline-light btn-sm"
             onClick={handleLogout}

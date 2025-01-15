@@ -149,3 +149,22 @@ func (app *application) recommendLibraries(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) getLibrariesHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.extractUserIDFromToken(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	libraries, err := app.library.GetSubscribedLibraries(int64(id))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"libraries": libraries}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

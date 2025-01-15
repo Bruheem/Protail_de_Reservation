@@ -129,22 +129,41 @@ func (m *UserModel) Insert(user *User) error {
 	return nil
 }
 
-func (m *UserModel) Update(user *User) error {
+func (m *UserModel) Update(user *User) (*User, error) {
+
+	roleMap := map[string]int{
+		"admin":     1,
+		"librarian": 2,
+		"user":      3,
+	}
+
+	RoleId, exists := roleMap[user.Role]
+	if !exists {
+		return nil, errors.New("invalid role")
+	}
+
 	query := `UPDATE user SET username = ?, password = ?, email = ?, userRoleID = ? WHERE id = ?`
-	err := m.DB.QueryRowContext(context.Background(), query, user.Username, user.Password, user.Email, user).Scan(&user.ID)
+	m.DB.QueryRowContext(context.Background(), query, user.Username, user.Password.hash, user.Email, RoleId, user.ID)
+
+	query = `SELECT * FROM user WHERE id = ?`
+
+	row, err := m.DB.QueryContext(context.Background(), query, user.ID)
 	if err != nil {
-		switch {
-		case strings.Contains(err.Error(), `email`):
-			return ErrDuplicateEmail
-		default:
-			return err
+		return nil, err
+	}
+	defer row.Close()
+	var updatedUser User
+	for row.Next() {
+		err = row.Scan(&updatedUser.ID, &updatedUser.Username, &updatedUser.Password.hash, &updatedUser.Email, &updatedUser.Role)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return nil
+	return user, nil
+
 }
 
 func (m UserModel) GetByEmail(email string) (*User, error) {
-	// query := `SELECT id, username, password, email, userRoleID FROM user WHERE email = ?`
 
 	query := `
     SELECT u.id, u.username, u.password, u.email, r.RoleName as role

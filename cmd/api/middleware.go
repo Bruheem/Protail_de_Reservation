@@ -31,6 +31,9 @@ func (app *application) librarianMiddleware(next http.Handler) http.Handler {
 }
 
 func (app *application) authorizationMiddleware(r *http.Request, role string) bool {
+
+	app.logger.Println("User is trying to authenticate!")
+
 	userID, err := app.extractUserIDFromToken(r)
 	if err != nil {
 		return false

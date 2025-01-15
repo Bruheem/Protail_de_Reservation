@@ -16,6 +16,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
 	// Library Endpoints
+	router.HandlerFunc(http.MethodGet, "/v1/libraries", app.getLibrariesHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/search/libraries", app.searchLibraries)
 	router.HandlerFunc(http.MethodGet, "/v1/libraries/:id", app.showLibraryHandler)
 	router.Handler(http.MethodPost, "/v1/libraries", app.adminMiddleware(http.HandlerFunc(app.createLibraryHandler)))
@@ -23,6 +24,7 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodDelete, "/v1/libraries/:id", app.adminMiddleware(http.HandlerFunc(app.deleteLibraryHandler)))
 
 	// Document Endpoints
+	router.HandlerFunc(http.MethodGet, "/v1/documents", app.getBorrowedDocument)
 	router.HandlerFunc(http.MethodPost, "/v1/document/:id/request", app.borrowDocument)
 	router.HandlerFunc(http.MethodGet, "/v1/search/documents", app.searchDocuments)
 	router.HandlerFunc(http.MethodGet, "/v1/documents/:id", app.showDocumentHandler)
@@ -33,21 +35,21 @@ func (app *application) routes() http.Handler {
 	// Authentication Endpoints
 	router.HandlerFunc(http.MethodPost, "/v1/auth/register", app.register)
 	router.HandlerFunc(http.MethodPost, "/v1/auth/login", app.login)
-	// router.HandlerFunc(http.MethodGet, "/v1/auth/profile", app.showProfileHandler)
 
 	// User Management
 	// router.HandlerFunc(http.MethodGet, "/v1/users/:id", app.getUser)
-	// router.HandlerFunc(http.MethodPut, "/v1/users/:id", app.updateUser)
+	router.HandlerFunc(http.MethodPut, "/v1/users", app.updateUser)
 	// router.HandlerFunc(http.MethodDelete, "/v1/users/:id", app.deleteUser)
 
 	// Subscription Management
-	router.HandlerFunc(http.MethodPost, "/v1/subscriptions", app.subscribe)
-	router.HandlerFunc(http.MethodDelete, "/v1/subscriptions", app.unsubscribe)
+	router.HandlerFunc(http.MethodPost, "/v1/subscribe", app.subscribe)
+	router.HandlerFunc(http.MethodPost, "/v1/unsubscribe", app.unsubscribe)
+	router.HandlerFunc(http.MethodGet, "/v1/subscriptions", app.getUserSubscriptions)
 
 	// Borrowing Management
 	router.HandlerFunc(http.MethodGet, "/v1/borrow", app.showBorrowedDocument)
 	router.HandlerFunc(http.MethodPost, "/v1/borrow", app.borrowDocument)
-	router.HandlerFunc(http.MethodPut, "/v1/borrow/:id/return", app.returnDocument)
+	router.HandlerFunc(http.MethodPost, "/v1/return/:id", app.returnDocument)
 
 	// Recommendations Management
 	router.HandlerFunc(http.MethodGet, "/v1/recommendations/libraries", app.recommendLibraries)

@@ -117,5 +117,6 @@ func (app *application) extractUserIDFromToken(r *http.Request) (int64, error) {
 		return 0, err
 	}
 
+	app.logger.Printf("ID extraction successful: %d", userID)
 	return userID, nil
 }

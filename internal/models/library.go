@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type Library struct {
@@ -82,11 +83,13 @@ func (m *LibraryModel) Delete(id uint64) error {
 func (m *LibraryModel) Search(query string) ([]*Library, error) {
 
 	sqlQuery := `
-		SELECT * 
+		SELECT library.*, COUNT(subscription.subscriptionID) AS subscription_count
 		FROM library
-		WHERE 
-			Name LIKE CONCAT('%', ?, '%')
-		ORDER BY Name
+		LEFT JOIN subscription 
+		ON library.LibraryID = subscription.libraryID
+		WHERE library.Name LIKE CONCAT('%', ?, '%')
+		GROUP BY library.LibraryID
+		ORDER BY library.Name
 	`
 
 	rows, err := m.DB.Query(sqlQuery, "%"+query+"%")
@@ -99,7 +102,7 @@ func (m *LibraryModel) Search(query string) ([]*Library, error) {
 	for rows.Next() {
 		library := &Library{}
 
-		if err := rows.Scan(&library.ID, &library.Name, &library.CreatedBy); err != nil {
+		if err := rows.Scan(&library.ID, &library.Name, &library.CreatedBy, &library.NumSubscribers); err != nil {
 			return nil, err
 		}
 
@@ -111,12 +114,12 @@ func (m *LibraryModel) Search(query string) ([]*Library, error) {
 
 func (m *LibraryModel) GetPopular() ([]*Library, error) {
 	query := `
-		SELECT l.LibraryID, l.name, COUNT(s.subscriptionID) AS num_subscribers
+		SELECT l.LibraryID, l.name, l.CreatedBy,COUNT(s.subscriptionID) AS num_subscribers
 		FROM library l
 		LEFT JOIN subscription s ON l.LibraryID = s.libraryID
 		GROUP BY l.LibraryID
 		ORDER BY num_subscribers DESC
-		LIMIT 10
+		LIMIT 8
 	`
 
 	rows, err := m.DB.Query(query)
@@ -128,8 +131,35 @@ func (m *LibraryModel) GetPopular() ([]*Library, error) {
 	var libraries []*Library
 	for rows.Next() {
 		lib := &Library{}
-		err := rows.Scan(&lib.ID, &lib.Name, &lib.NumSubscribers)
+		err := rows.Scan(&lib.ID, &lib.Name, &lib.CreatedBy, &lib.NumSubscribers)
 		if err != nil {
+			return nil, err
+		}
+		libraries = append(libraries, lib)
+	}
+
+	return libraries, nil
+}
+
+func (m *LibraryModel) GetSubscribedLibraries(id int64) ([]*Library, error) {
+	query := `
+        SELECT l.LibraryID, l.Name, l.CreatedBy
+        FROM library l
+        JOIN subscription s ON l.LibraryID = s.libraryID
+        WHERE s.userID = ?
+    `
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var libraries []*Library
+	for rows.Next() {
+		lib := &Library{}
+		if err := rows.Scan(&lib.ID, &lib.Name, &lib.CreatedBy); err != nil {
+			fmt.Println(err)
 			return nil, err
 		}
 		libraries = append(libraries, lib)
